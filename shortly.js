@@ -22,11 +22,12 @@ app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
-app.use(session({
-    secret: 'neverending',
-    resave: false,
-    saveUninitialized: true
-}));
+// app.use(session({
+//     secret: 'neverending',
+//     resave: false,
+//     saveUninitialized: true,
+//     user: null
+// }));
 
 
 app.get('/', util.isLoggedIn,
@@ -87,9 +88,16 @@ app.get('/login',
    res.render('login');
 });
 
-app.post('/login', 
+app.post('/login', util.compareHash,
   function(req, res){
-        
+    console.log('here')
+    app.use(session({
+      secret: 'neverending',
+      resave: false,
+      saveUninitialized: true,
+      user: req.body.username
+    }));
+    res.redirect('/')
 });
 
 app.get('/signup', function(req, res) {
@@ -97,10 +105,14 @@ app.get('/signup', function(req, res) {
 });
 
 app.post('/signup', function(req, res) {
-  console.log(req.body);
   var user = new User({username: req.body.username, password: null});
   user.save().then(function() {
-    req.session.user = req.body.username;
+    app.use(session({
+      secret: 'neverending',
+      resave: false,
+      saveUninitialized: true,
+      user: req.body.username
+    }));
     return res.redirect('/');
   });
 });
