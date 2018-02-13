@@ -2,6 +2,7 @@ var express = require('express');
 var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
+var session = require('express-session'); 
 
 
 var db = require('./app/config');
@@ -21,9 +22,14 @@ app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
+app.use(session({
+    secret: 'neverending',
+    resave: false,
+    saveUninitialized: true
+}));
 
 
-app.get('/',
+app.get('/', util.isLoggedIn,
   function(req, res) {
     res.render('index');
 });
@@ -81,6 +87,11 @@ app.get('/login',
    res.render('login');
 });
 
+app.post('/login', 
+  function(req, res){
+        
+});
+
 app.get('/signup', function(req, res) {
   res.render('signup');
 });
@@ -89,6 +100,7 @@ app.post('/signup', function(req, res) {
   console.log(req.body);
   var user = new User({username: req.body.username, password: null});
   user.save().then(function() {
+    req.session.user = req.body.username;
     return res.redirect('/');
   });
 });
