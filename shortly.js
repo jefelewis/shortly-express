@@ -23,9 +23,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 
-app.get('/', 
-function(req, res) {
-  res.render('index');
+app.get('/',
+  function(req, res) {
+    res.render('index');
 });
 
 app.get('/create', 
@@ -76,7 +76,22 @@ function(req, res) {
 // Write your authentication routes here
 /************************************************************/
 
+app.get('/login', 
+ function(req, res) {
+   res.render('login');
+});
 
+app.get('/signup', function(req, res) {
+  res.render('signup');
+});
+
+app.post('/signup', function(req, res) {
+  console.log(req.body);
+  var user = new User({username: req.body.username, password: null});
+  user.save().then(function() {
+    return res.redirect('/');
+  });
+});
 
 /************************************************************/
 // Handle the wildcard route last - if all other routes fail
